@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>みんなからの褒めタイムライン</title>
+<style>
+:root{--bg:#fff;--fg:#0f1419;--sub:#536471;--line:#eff3f4;--accent:#f28c28;--like:#f91880;--rt:#00ba7c;--hover:#f7f9f9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#000;--fg:#e7e9ea;--sub:#71767b;--line:#2f3336;--hover:#080808;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#000;--fg:#e7e9ea;--sub:#71767b;--line:#2f3336;--hover:#080808;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,"Hiragino Sans","Yu Gothic","Noto Sans JP",sans-serif;line-height:1.5}
+.wrap{max-width:600px;margin:0 auto;border-left:1px solid var(--line);border-right:1px solid var(--line);min-height:100vh}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);z-index:5;border-bottom:1px solid var(--line);padding:10px 16px}
+header b{font-size:20px;display:block}header span{font-size:13px;color:var(--sub)}
+.cover{height:120px;background:linear-gradient(120deg,#ffb347,#ff7a3d 50%,#c2410c 78%,#7b2d4f)}
+.prof{padding:0 16px 14px;border-bottom:1px solid var(--line)}
+.prof .av{width:76px;height:76px;margin-top:-38px;border:4px solid var(--bg);font-size:38px}
+.prof h1{margin:8px 0 0;font-size:20px}.prof p{margin:2px 0;color:var(--sub);font-size:15px}
+.prof .bio{color:var(--fg);margin-top:8px}
+.av{border-radius:50%;display:grid;place-items:center;flex:none;width:40px;height:40px;font-size:20px}
+.post{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.post:hover{background:var(--hover)}
+.body{min-width:0;flex:1}
+.name{font-size:15px}.name b{margin-right:4px}.name span{color:var(--sub)}
+.text{margin:2px 0 8px;font-size:15px;white-space:pre-wrap;overflow-wrap:anywhere}
+.acts{display:flex;justify-content:space-between;max-width:420px;margin-left:-8px}
+.acts button{all:unset;cursor:pointer;display:flex;align-items:center;gap:4px;color:var(--sub);font-size:13px;padding:6px 8px;border-radius:99px;font-variant-numeric:tabular-nums;min-width:52px}
+.acts button:focus-visible{outline:2px solid var(--accent)}
+.acts svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.acts .rp:hover,.acts .rp.on{color:var(--rt)}
+.acts .lk:hover,.acts .lk.on{color:var(--like)}
+.acts .lk.on svg{fill:var(--like)}
+.acts .rp.on svg{stroke-width:2.6}
+.acts .rl:hover{color:var(--accent)}
+.acts button.pop svg{animation:pop .3s}
+@keyframes pop{40%{transform:scale(1.5)}}
+@media (prefers-reduced-motion:reduce){.acts button.pop svg{animation:none}}
+.end{padding:32px 16px;text-align:center;color:var(--sub);font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><b id="hname"></b><span id="hcount"></span></header>
+<div class="cover"></div>
+<div class="prof">
+  <div class="av" style="background:#ffe3e8">🌹</div>
+  <h1 id="pname"></h1>
+  <p id="phandle"></p>
+  <p class="bio" id="pbio"></p>
+</div>
+<main id="tl"></main>
+<div class="end" id="end"></div>
+</div>
+<script>
+// ★ここを書き換えれば中身が変わります
+const FRIEND = { name: "ともちゃん", handle: "@tomo_stage", bio: "ミュージカルもお芝居も、いつも一生懸命🎭 頑張り屋さん🌹" };
+const POSTS = [
+  { who:"わたし", handle:"@me", icon:"😊", color:"#ffe6cc", time:"2時間", text:"ともちゃんの歌声、ほんとに好き。\n聴いてると心がぎゅっとつかまれて、気づいたら泣いてたりする。歌がうまい人は多いけど、届く歌を歌える人は少ないんだよ。", rp:34, lk:420, rl:12 },
+  { who:"客席の最前列", handle:"@front_row", icon:"🎭", color:"#ffe0d6", time:"3時間", text:"ともちゃんの演技、役に入った瞬間に空気が変わる。\n目線ひとつ、指先ひとつまで物語になってて、ずっと見ていたくなる。", rp:58, lk:536, rl:14 },
+  { who:"頑張り屋さん協会", handle:"@ganbariya_kyokai", icon:"🔥", color:"#ffe9c2", time:"4時間", text:"【認定】ともちゃんを「頑張り屋さん」殿堂入りとします。\nミュージカルもお芝居も、どっちも全力。手を抜く姿を見たことがありません。", rp:71, lk:603, rl:16 },
+  { who:"元気注入係", handle:"@genki_chuunyu", icon:"☀️", color:"#fff0c9", time:"5時間", text:"【速報】ともちゃんが現れた瞬間、その場の元気が3割増しになりました。\nいつも元気いっぱいで、周りまでぱっと明るくなる。太陽みたいな人。", rp:47, lk:388, rl:9 },
+  { who:"毛糸のおじさん", handle:"@keito_oji", icon:"🧶", color:"#f6e3d0", time:"8時間", text:"ともちゃんが編むものは、目がきれいにそろってて、色づかいもかわいい。\n編み物が上手い人は、きっと心まで丁寧。", rp:21, lk:244, rl:6 },
+  { who:"一生懸命ウォッチャー", handle:"@isshokenmei", icon:"💪", color:"#dff3ff", time:"10時間", text:"ともちゃんって、何をやるにも一生懸命。\nうまくいかない日があっても、次の日にはまた全力で向き合ってる。その姿に何度も励まされてます。", rp:55, lk:472, rl:10 },
+  { who:"稽古場の壁", handle:"@keikoba_wall", icon:"🎬", color:"#e8e0ff", time:"12時間", text:"稽古場の壁です。\nともちゃんが誰よりも真剣に、何度でも同じシーンに向き合ってるのを毎日見てます。舞台に向かう姿勢が本当にかっこいい。", rp:66, lk:571, rl:10 },
+  { who:"ミュージカル好きの人", handle:"@musical_lover", icon:"🎶", color:"#f3dcee", time:"18時間", text:"歌も、ダンスも、お芝居も。\nミュージカルって大変なことだらけなのに、ともちゃんはいつも楽しそうに全力でやりきる。ほんとにすごい。", rp:44, lk:398, rl:8 },
+  { who:"努力を見てる人", handle:"@mite_ru", icon:"🌱", color:"#e3f5d2", time:"1日", text:"見えないところでこつこつ積み重ねてるの、みんな知ってるよ。\nともちゃんの上手さは、才能だけじゃなくて努力の結晶。えらい！", rp:52, lk:447, rl:8 },
+  { who:"かわいい保安官", handle:"@kawaii_sheriff", icon:"⭐", color:"#ffe3ec", time:"1日", text:"ともちゃん、かわいいが過ぎます。\n笑った顔も、真剣な顔も、ステージ上の顔も全部かわいい。逮捕します（いい意味で）。", rp:39, lk:402, rl:11 },
+  { who:"楽屋の隅っこ", handle:"@gakuya_corner", icon:"🪞", color:"#fde2d0", time:"2日", text:"本番前の楽屋でも、台本を片手に最後まで確認してるともちゃん。\n頑張りすぎないでね、でもその一生懸命さがみんなの力になってるよ。", rp:36, lk:341, rl:7 },
+  { who:"わたし", handle:"@me", icon:"😊", color:"#ffe6cc", time:"3日", text:"ともちゃん、誕生日おめでとう🎂🎉\nこれからも歌って、演じて、元気いっぱいに輝いてね。ずっと応援してる！", rp:99, lk:999, rl:27 }
+];
+const $=s=>document.querySelector(s);
+document.title=FRIEND.name+"への褒めタイムライン";
+$("#hname").textContent=FRIEND.name;$("#hcount").textContent=POSTS.length+"件のポスト";
+$("#pname").textContent=FRIEND.name;$("#phandle").textContent=FRIEND.handle;$("#pbio").textContent=FRIEND.bio;
+$("#end").textContent="まだまだ褒めたりないけど、このへんで。ハートは何回でも押してね🧡";
+const icons={
+ rl:'<path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.7-5.2A8.4 8.4 0 1 1 21 11.5z"/>',
+ rp:'<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>',
+ lk:'<path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 22l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>'};
+let saved={};try{saved=JSON.parse(localStorage.getItem("tl")||"{}")}catch(e){}
+const save=()=>{try{localStorage.setItem("tl",JSON.stringify(saved))}catch(e){}};
+const fmt=n=>n>=10000?(n/10000).toFixed(1)+"万":n.toLocaleString();
+const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+$("#tl").innerHTML=POSTS.map((p,i)=>{
+ const s=saved[i]||{};
+ const btn=(k,label)=>`<button class="${k}${s[k+"On"]?" on":""}" data-i="${i}" data-k="${k}" aria-label="${label}"><svg viewBox="0 0 24 24">${icons[k]}</svg><span>${fmt(p[k]+(s[k]||0))}</span></button>`;
+ return `<article class="post"><div class="av" style="background:${p.color}">${p.icon}</div><div class="body">
+ <div class="name"><b>${esc(p.who)}</b><span>${esc(p.handle)} ・ ${p.time}</span></div>
+ <div class="text">${esc(p.text)}</div>
+ <div class="acts">${btn("rl","返信")}${btn("rp","リポスト")}${btn("lk","いいね")}</div></div></article>`}).join("");
+$("#tl").addEventListener("click",e=>{
+ const b=e.target.closest("button");if(!b)return;
+ const i=b.dataset.i,k=b.dataset.k;
+ saved[i]=saved[i]||{};saved[i][k]=(saved[i][k]||0)+1;saved[i][k+"On"]=true;save();
+ b.classList.add("on");b.querySelector("span").textContent=fmt(POSTS[i][k]+saved[i][k]);
+ b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop");
+});
+</script>
+</body>
+</html>
