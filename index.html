@@ -90,7 +90,6 @@ body.scary .try,body.scary .nudge{background:#070000;color:#7a1c1c}
   <h1 id="pname"></h1>
   <p id="phandle"></p>
   <p class="bio" id="pbio"></p>
-  <button class="chg" id="chg">名前を変える</button>
 </div>
 <div class="nudge" id="nudge"><span id="nudgetxt"></span><button id="rf">更新して！</button></div>
 <main id="tl"></main>
@@ -208,7 +207,6 @@ function submitName(){
 }
 $("#go").addEventListener("click",submitName);
 $("#nm").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing)submitName()});
-$("#chg").addEventListener("click",openAsk);
 const touch=matchMedia("(pointer:coarse)").matches;
 const defNudge=touch?"👇 画面を下にスワイプして更新すると、新しいつぶやきが届くよ！":"🔄 ページを更新すると、新しいつぶやきが届くよ！";
 $("#rf").hidden=touch;
