@@ -49,19 +49,33 @@ header b{font-size:20px;display:block}header span{font-size:13px;color:var(--sub
 .note{display:block;margin-top:8px;font-size:12px;color:var(--sub)}
 .chg{all:unset;cursor:pointer;color:var(--accent);font-size:13px;margin-top:6px;display:inline-block}
 .chg:focus-visible{outline:2px solid var(--accent)}
+.ask{background:linear-gradient(160deg,#ffb347,#ff7a3d 50%,#c2410c)!important}
+body.asking .wrap{visibility:hidden}
+.nudge{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:color-mix(in srgb,var(--accent) 12%,var(--bg));border-bottom:1px solid var(--line);font-size:14px}
+.nudge[hidden]{display:none}
+.nudge button{all:unset;cursor:pointer;background:var(--accent);color:#fff;font-weight:700;padding:8px 16px;border-radius:99px;white-space:nowrap}
+.nudge button:focus-visible{outline:2px solid var(--fg)}
+@keyframes fresh{from{background:color-mix(in srgb,var(--accent) 25%,var(--bg))}to{background:transparent}}
+.post.fresh{animation:fresh 2s ease-out}
+html,body{overscroll-behavior-y:contain}
+.nudge button[hidden]{display:none}
+#ptr{height:0;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;color:var(--sub);font-size:13px}
+@media (prefers-reduced-motion:reduce){.post.fresh{animation:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
+<div id="ptr"></div>
 <header><b id="hname"></b><span id="hcount"></span></header>
 <div class="cover"></div>
 <div class="prof">
-  <div class="av" style="background:#ffe3e8">🌹</div>
+  <div class="av" id="pav"></div>
   <h1 id="pname"></h1>
   <p id="phandle"></p>
   <p class="bio" id="pbio"></p>
   <button class="chg" id="chg">名前を変える</button>
 </div>
+<div class="nudge" id="nudge"><span id="nudgetxt"></span><button id="rf">更新して！</button></div>
 <main id="tl"></main>
 <div class="end" id="end"></div>
 </div>
@@ -72,8 +86,15 @@ header b{font-size:20px;display:block}header span{font-size:13px;color:var(--sub
 <button id="go">はじめる</button></div></div>
 <script>
 // ★ここを書き換えれば中身が変わります
-const FRIEND = { name: "ともちゃん", handle: "@star_on_stage", bio: "ミュージカルもお芝居も、いつも一生懸命🎭 頑張り屋さん🌹" };
-const POSTS = [
+const P=(who,handle,icon,color,time,text,rp,lk,rl)=>({who,handle,icon,color,time,text,rp,lk,rl});
+const KEYS=[
+["furusawa",["古沢","朋恵","ふるさわ","ともえ","フルサワ","トモエ","Furusawa","Tomoe"]],
+["satou",["佐藤","知恩","さとう","ちおん","サトウ","チオン","Satou","Chion"]],
+["komusubi",["小結","湊仁","こむすび","みなと","コムスビ","ミナト","Komusubi","Minato"]],
+["yuuka",["優香","ゆうか","ユウカ","Yuuka"]]];
+const PROFILES={
+furusawa:{suffix:"ちゃん",handle:"@star_on_stage",bio:"ミュージカルもお芝居も、いつも一生懸命🎭 頑張り屋さん🌹",icon:"🌹",iconBg:"#ffe3e8",accent:"#f28c28",cover:"linear-gradient(120deg,#ffb347,#ff7a3d 50%,#c2410c 78%,#7b2d4f)",end:"まだまだ褒めたりないけど、このへんで。ハートは何回でも押してね🧡",posts:[
+  { who:"わたし", handle:"@me", icon:"😊", color:"#ffe6cc", time:"たった今", text:"{N}、誕生日おめでとう🎂🎉\nこれからも歌って、演じて、元気いっぱいに輝いてね。ずっと応援してる！", rp:99, lk:999, rl:27 },
   { who:"わたし", handle:"@me", icon:"😊", color:"#ffe6cc", time:"2時間", text:"{N}の歌声、ほんとに好き。\n聴いてると心がぎゅっとつかまれて、気づいたら泣いてたりする。歌がうまい人は多いけど、届く歌を歌える人は少ないんだよ。", rp:34, lk:420, rl:12 },
   { who:"客席の最前列", handle:"@front_row", icon:"🎭", color:"#ffe0d6", time:"3時間", text:"{N}の演技、役に入った瞬間に空気が変わる。\n目線ひとつ、指先ひとつまで物語になってて、ずっと見ていたくなる。", rp:58, lk:536, rl:14 },
   { who:"頑張り屋さん協会", handle:"@ganbariya_kyokai", icon:"🔥", color:"#ffe9c2", time:"4時間", text:"【認定】{N}を「頑張り屋さん」殿堂入りとします。\nミュージカルもお芝居も、どっちも全力。手を抜く姿を見たことがありません。", rp:71, lk:603, rl:16 },
@@ -84,51 +105,102 @@ const POSTS = [
   { who:"ミュージカル好きの人", handle:"@musical_lover", icon:"🎶", color:"#f3dcee", time:"18時間", text:"歌も、ダンスも、お芝居も。\nミュージカルって大変なことだらけなのに、{N}はいつも楽しそうに全力でやりきる。ほんとにすごい。", rp:44, lk:398, rl:8 },
   { who:"努力を見てる人", handle:"@mite_ru", icon:"🌱", color:"#e3f5d2", time:"1日", text:"見えないところでこつこつ積み重ねてるの、みんな知ってるよ。\n{N}の上手さは、才能だけじゃなくて努力の結晶。えらい！", rp:52, lk:447, rl:8 },
   { who:"かわいい保安官", handle:"@kawaii_sheriff", icon:"⭐", color:"#ffe3ec", time:"1日", text:"{N}、かわいいが過ぎます。\n笑った顔も、真剣な顔も、ステージ上の顔も全部かわいい。逮捕します（いい意味で）。", rp:39, lk:402, rl:11 },
-  { who:"楽屋の隅っこ", handle:"@gakuya_corner", icon:"🪞", color:"#fde2d0", time:"2日", text:"本番前の楽屋でも、台本を片手に最後まで確認してる{N}。\n頑張りすぎないでね、でもその一生懸命さがみんなの力になってるよ。", rp:36, lk:341, rl:7 },
-  { who:"わたし", handle:"@me", icon:"😊", color:"#ffe6cc", time:"3日", text:"{N}、誕生日おめでとう🎂🎉\nこれからも歌って、演じて、元気いっぱいに輝いてね。ずっと応援してる！", rp:99, lk:999, rl:27 }
-];
+  { who:"舞台ファン", handle:"@butai_fan", icon:"🎟️", color:"#fde2d0", time:"2日", text:"{N}の演技を見てると、役のことをいっぱい考えてるのが伝わってくる。\n表情も間も、全部に理由があるみたいで、毎回「この人は役を生きてるんだな」って思わされる。", rp:36, lk:341, rl:7 }
+]},
+satou:{suffix:"くん",handle:"@rap_and_stage",bio:"ラップも歌もお芝居も。ポッドキャストも配信中🎙️",icon:"🍛",iconBg:"#fff0c9",accent:"#d98a1c",cover:"linear-gradient(120deg,#f6c23e,#d98a1c 55%,#7a4a12)",end:"まだまだ褒めたりないけど、このへんで。ハートは何回でも押してね🧡",posts:[
+P("わたし","@me","😊","#ffe6cc","たった今","{N}、いつも本当にありがとう。\nこれからも全力で応援してる！",44,388,9),
+P("ポッドキャスト中毒","@pod_addict","🎧","#dff3ff","3時間","{N}のポッドキャスト、ほんとに面白い。\nトークのテンポも、ちょっとした脱線も最高で、毎回更新が待ち遠しい。通勤中に笑いをこらえるのが大変です。",52,431,12),
+P("真面目警察","@majime_police","🚓","#e3f5d2","6時間","{N}って、本当に真面目。\n与えられた課題には絶対に手を抜かないし、目の前のことにいつも一生懸命。そういうところ、めちゃくちゃ信頼できる。",31,267,5),
+P("稽古場の壁","@keikoba_wall","🎬","#e8e0ff","10時間","芝居に向き合う{N}の熱量がすごい。\n誰よりも熱心で、同じシーンを何度でも掘り下げてる。見てるこっちも背筋が伸びます。",60,502,11),
+P("客席の最前列","@front_row","🎭","#ffe0d6","1日","{N}の演技で泣いた。\nセリフじゃなく、気持ちがそのまま届いてくる感じ。人を感動させられる役者って、ほんとにすごい。",77,611,15),
+P("歌好きの人","@uta_suki","🎶","#f3dcee","1日","{N}の歌、ずるいくらい上手い。\n声に芯があって、聴き終わったあともしばらく余韻が残る。",49,415,8),
+P("ライブ帰り","@live_kaeri","🎤","#ffe9c2","2日","{N}のラップ、リズム感もライムも最高にかっこいい。\nリリースしたEPを何度も聴いてる。YouTubeでも、気づいたら同じ曲をリピートしちゃう。",83,689,14)
+]},
+komusubi:{suffix:"くん",handle:"@nail_and_dance",bio:"ネイルもダンスも剣道も。人狼も強い💅",icon:"💅",iconBg:"#ffe3f3",accent:"#b04ad8",cover:"linear-gradient(120deg,#ff9ad5,#c77dff 55%,#7b6bff)",end:"まだまだ褒めたりないけど、このへんで。ハートは何回でも押してね💜",posts:[
+P("わたし","@me","😊","#ffe6cc","たった今","{N}、いつもありがとう。\nこれからもずっと応援してるよ！",39,356,8),
+P("ファン代表","@fan_daihyo","💜","#f3dcee","4時間","{N}はファンのことを、いつも本気で考えてくれる。\nコメントもメッセージも、ちゃんと見てくれてるのが伝わる。応援してきてよかったって思わせてくれる人。",68,574,13),
+P("多才すぎて困る","@tasai_sugi","🌟","#fff0c9","8時間","ダンスも剣道も、気づいたら何でもできちゃう{N}。\n才能が多すぎて、ちょっとうらやましい。まだ隠してる特技がある気がする。",54,449,10),
+P("ダンス部の後輩","@dance_kohai","🕺","#dff3ff","12時間","{N}のダンス、キレがあって目が離せない。\n思わず見入っちゃう動きで、ずっと見ていたくなる。かっこいい。",41,333,7),
+P("人狼村の住人","@jinro_mura","🐺","#e8e0ff","1日","人狼ゲームの{N}、観察力と話術が段違い。\n疑いを晴らす理由の組み立てが完璧で、毎回感心する。敵に回したくない（味方だと頼もしい）。",47,402,9),
+P("努力を見てる人","@mite_ru","🌱","#e3f5d2","2日","{N}が努力してるの、みんな知ってるよ。\n見えないところで積み重ねて、ちゃんと結果を出す人。心から尊敬してる。",58,479,11),
+P("ネイル研究会","@nail_lab","💅","#ffe3f3","2日","{N}のネイル、細かいところまで丁寧で、センスがすごい。\n男の人でここまで上手い人、なかなかいない。",72,611,16)
+]},
+yuuka:{suffix:"ちゃん",handle:"@",bio:"",icon:"",iconBg:"#000",accent:"#7a0000",cover:"#000",end:"",posts:[
+P("","@","","#000","たった今","全部知ってるよ。",0,0,0),
+P("","@","","#000","1分","結婚おめでとう！",0,0,0)
+]},
+generic:{suffix:"さん",handle:"@you_are_great",bio:"いつもお疲れ様。ちゃんと見てるよ🌿",icon:"🌿",iconBg:"#dcf7e8",accent:"#1d9bf0",cover:"linear-gradient(120deg,#7ee0c3,#4aa8ff 60%,#6b6bff)",end:"全部読んでくれてありがとう！ハートは何回でも押してね💙",posts:[
+P("わたし","@me","😊","#ffe6cc","たった今","{N}、いつもありがとう。\nこれからもよろしくね！",36,298,6),
+P("友だち","@tomodachi","🤝","#dff3ff","3時間","君といると楽しい。\nほんとにそれだけ。気づいたらずっと笑ってるんだよね。",42,351,9),
+P("やさしさ観察隊","@yasashisa_watch","🌸","#ffe3ec","8時間","{N}って、優しいよね。\nさりげない気づかいに、何度も助けられてる。",51,420,8),
+P("見てる人","@mite_iru","👀","#e3f5d2","1日","頑張ってるね。\n{N}が頑張ってるの、ちゃんと見てるよ。",63,502,12),
+P("ねぎらい係","@negirai","☕","#fff0c9","1日","お疲れ様。\n今日もよくやったね。ゆっくり休んでね。",58,477,10)
+]}
+};
+const clearAll=()=>{try{["tlname","tlshown","tl2","tl"].forEach(k=>localStorage.removeItem(k))}catch(e){}};
+if(/[?&]reset\b/.test(location.search))clearAll();
 const $=s=>document.querySelector(s);
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const icons={
  rl:'<path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.7-5.2A8.4 8.4 0 1 1 21 11.5z"/>',
  rp:'<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>',
  lk:'<path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 22l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>'};
-let saved={},myName="",asked=false;
-try{saved=JSON.parse(localStorage.getItem("tl")||"{}")}catch(e){}
+const match=n=>{const t=n.toLowerCase();for(const [k,ws] of KEYS)if(ws.some(w=>t.includes(w.toLowerCase())))return k;return "generic"};
+let saved={},myName="",asked=false,PK="generic",PR=PROFILES.generic,POSTS=PR.posts;
+try{saved=JSON.parse(localStorage.getItem("tl2")||"{}")}catch(e){}
 try{const v=localStorage.getItem("tlname");if(v!==null){asked=true;myName=v}}catch(e){}
-const save=()=>{try{localStorage.setItem("tl",JSON.stringify(saved))}catch(e){}};
+let shown=1;
+try{shown=(+localStorage.getItem("tlshown")||0)+1;localStorage.setItem("tlshown",shown)}catch(e){shown=99}
+const save=()=>{try{localStorage.setItem("tl2",JSON.stringify(saved))}catch(e){}};
 const fmt=n=>n>=10000?(n/10000).toFixed(1)+"万":n.toLocaleString();
-const honor=n=>/(ちゃん|さん|くん|様|さま)$/.test(n)?n:n+"ちゃん";
+const honor=(n,s)=>/(ちゃん|さん|くん|様|さま)$/.test(n)?n:n+s;
 function render(){
- const N=myName?honor(myName):FRIEND.name;
+ PK=myName?match(myName):"generic";PR=PROFILES[PK];POSTS=PR.posts;
+ const N=myName?honor(myName,PR.suffix):"あなた";
+ const L=POSTS.length,sh=Math.min(shown,L),start=L-sh,done=sh>=L;
  document.title="birthday present";
- $("#hname").textContent=N;$("#hcount").textContent=POSTS.length+"件のポスト";
- $("#pname").textContent=N;$("#phandle").textContent=FRIEND.handle;$("#pbio").textContent=FRIEND.bio;
- $("#end").textContent="まだまだ褒めたりないけど、このへんで。ハートは何回でも押してね🧡";
- $("#tl").innerHTML=POSTS.map((p,i)=>{
-  const s=saved[i]||{};
+ document.documentElement.style.setProperty("--accent",PR.accent);
+ $(".cover").style.background=PR.cover;
+ $("#pav").style.background=PR.iconBg;$("#pav").textContent=PR.icon;
+ $("#hname").textContent=N;$("#hcount").textContent=sh+"件のポスト";
+ $("#pname").textContent=N;$("#phandle").textContent=PR.handle;$("#pbio").textContent=PR.bio;
+ $("#nudge").hidden=done;
+ $("#end").textContent=done?PR.end:"";
+ $("#tl").innerHTML=POSTS.map((p,i)=>({p,i})).slice(start).map(({p,i})=>{
+  const s=saved[PK+i]||{};
   const btn=(k,label)=>`<button class="${k}${s[k+"On"]?" on":""}" data-i="${i}" data-k="${k}" aria-label="${label}"><svg viewBox="0 0 24 24">${icons[k]}</svg><span>${fmt(p[k]+(s[k]||0))}</span></button>`;
-  return `<article class="post"><div class="av" style="background:${p.color}">${p.icon}</div><div class="body">
+  return `<article class="post${i===start&&sh>1?" fresh":""}"><div class="av" style="background:${p.color}">${p.icon}</div><div class="body">
   <div class="name"><b>${esc(p.who)}</b><span>${esc(p.handle)} ・ ${p.time}</span></div>
   <div class="text">${esc(p.text).split("{N}").join(esc(N))}</div>
   <div class="acts">${btn("rl","返信")}${btn("rp","リポスト")}${btn("lk","いいね")}</div></div></article>`}).join("");
 }
 $("#tl").addEventListener("click",e=>{
  const b=e.target.closest("button");if(!b)return;
- const i=b.dataset.i,k=b.dataset.k;
- saved[i]=saved[i]||{};saved[i][k]=(saved[i][k]||0)+1;saved[i][k+"On"]=true;save();
- b.classList.add("on");b.querySelector("span").textContent=fmt(POSTS[i][k]+saved[i][k]);
+ const i=b.dataset.i,k=b.dataset.k,key=PK+i;
+ saved[key]=saved[key]||{};saved[key][k]=(saved[key][k]||0)+1;saved[key][k+"On"]=true;save();
+ b.classList.add("on");b.querySelector("span").textContent=fmt(POSTS[i][k]+saved[key][k]);
  b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop");
 });
-function openAsk(){$("#ask").hidden=false;$("#nm").value=myName;setTimeout(()=>$("#nm").focus(),50)}
+function openAsk(){document.body.classList.add("asking");$("#ask").hidden=false;$("#nm").value=myName;setTimeout(()=>$("#nm").focus(),50)}
 function submitName(){
  myName=$("#nm").value.trim().slice(0,20);
  try{localStorage.setItem("tlname",myName)}catch(e){}
- $("#ask").hidden=true;render();
+ $("#ask").hidden=true;document.body.classList.remove("asking");render();
 }
 $("#go").addEventListener("click",submitName);
 $("#nm").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing)submitName()});
 $("#chg").addEventListener("click",openAsk);
+const touch=matchMedia("(pointer:coarse)").matches;
+$("#nudgetxt").textContent=touch?"👇 画面を下にスワイプして更新すると、新しいつぶやきが届くよ！":"🔄 ページを更新すると、新しいつぶやきが届くよ！";
+$("#rf").hidden=touch;
+function more(){if(shown>=POSTS.length)return;shown++;try{localStorage.setItem("tlshown",shown)}catch(e){}render();const n=document.querySelector(".post.fresh");if(n)n.scrollIntoView({behavior:"smooth",block:"center"})}
+$("#rf").addEventListener("click",more);
+let y0=null,dy=0;const ptr=$("#ptr");
+addEventListener("touchstart",e=>{if(scrollY<=0&&$("#ask").hidden&&shown<POSTS.length){y0=e.touches[0].clientY;dy=0}else y0=null},{passive:true});
+addEventListener("touchmove",e=>{if(y0===null)return;dy=e.touches[0].clientY-y0;if(dy>0&&scrollY<=0){e.preventDefault();const h=Math.min(dy*.5,64);ptr.style.height=h+"px";ptr.textContent=h>=48?"離すと更新 🔄":"↓ 引っ張って更新"}else{ptr.style.height="0px"}},{passive:false});
+addEventListener("touchend",()=>{if(y0===null)return;const go=dy*.5>=48;y0=null;ptr.style.transition="height .25s";ptr.style.height="0px";ptr.textContent="";setTimeout(()=>{ptr.style.transition="";if(go)more()},250)});
+let taps=0,tapT;
+$("header").addEventListener("click",()=>{taps++;clearTimeout(tapT);tapT=setTimeout(()=>{taps=0},2500);if(taps>=5){clearAll();location.reload()}});
 render();
 if(!asked)openAsk();
 </script>
