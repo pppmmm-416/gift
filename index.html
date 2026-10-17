@@ -39,6 +39,16 @@ header b{font-size:20px;display:block}header span{font-size:13px;color:var(--sub
 @keyframes pop{40%{transform:scale(1.5)}}
 @media (prefers-reduced-motion:reduce){.acts button.pop svg{animation:none}}
 .end{padding:32px 16px;text-align:center;color:var(--sub);font-size:14px}
+.ask{position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;z-index:20;padding:20px}
+.ask[hidden]{display:none}
+.card{background:var(--bg);color:var(--fg);border-radius:20px;padding:28px 22px;width:100%;max-width:360px;text-align:center}
+.card h2{margin:0 0 6px;font-size:20px}.card p{margin:0 0 16px;color:var(--sub);font-size:14px}
+.card input{width:100%;font:inherit;font-size:16px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--fg);text-align:center}
+.card input:focus{outline:2px solid var(--accent);border-color:var(--accent)}
+.card button{margin-top:14px;width:100%;font:inherit;font-weight:700;padding:12px;border:0;border-radius:99px;background:var(--accent);color:#fff;cursor:pointer}
+.note{display:block;margin-top:8px;font-size:12px;color:var(--sub)}
+.chg{all:unset;cursor:pointer;color:var(--accent);font-size:13px;margin-top:6px;display:inline-block}
+.chg:focus-visible{outline:2px solid var(--accent)}
 </style>
 </head>
 <body>
@@ -50,47 +60,59 @@ header b{font-size:20px;display:block}header span{font-size:13px;color:var(--sub
   <h1 id="pname"></h1>
   <p id="phandle"></p>
   <p class="bio" id="pbio"></p>
+  <button class="chg" id="chg">名前を変える</button>
 </div>
 <main id="tl"></main>
 <div class="end" id="end"></div>
 </div>
+<div class="ask" id="ask" hidden><div class="card">
+<h2>ようこそ🌹</h2><p>呼ばれたい名前を入力してね</p>
+<input id="nm" maxlength="20" placeholder="例：ゆうか" autocomplete="off">
+<small class="note">※これはジョークサイトです。</small>
+<button id="go">はじめる</button></div></div>
 <script>
 // ★ここを書き換えれば中身が変わります
-const FRIEND = { name: "ともちゃん", handle: "@tomo_stage", bio: "ミュージカルもお芝居も、いつも一生懸命🎭 頑張り屋さん🌹" };
+const FRIEND = { name: "ともちゃん", handle: "@star_on_stage", bio: "ミュージカルもお芝居も、いつも一生懸命🎭 頑張り屋さん🌹" };
 const POSTS = [
-  { who:"わたし", handle:"@me", icon:"😊", color:"#ffe6cc", time:"2時間", text:"ともちゃんの歌声、ほんとに好き。\n聴いてると心がぎゅっとつかまれて、気づいたら泣いてたりする。歌がうまい人は多いけど、届く歌を歌える人は少ないんだよ。", rp:34, lk:420, rl:12 },
-  { who:"客席の最前列", handle:"@front_row", icon:"🎭", color:"#ffe0d6", time:"3時間", text:"ともちゃんの演技、役に入った瞬間に空気が変わる。\n目線ひとつ、指先ひとつまで物語になってて、ずっと見ていたくなる。", rp:58, lk:536, rl:14 },
-  { who:"頑張り屋さん協会", handle:"@ganbariya_kyokai", icon:"🔥", color:"#ffe9c2", time:"4時間", text:"【認定】ともちゃんを「頑張り屋さん」殿堂入りとします。\nミュージカルもお芝居も、どっちも全力。手を抜く姿を見たことがありません。", rp:71, lk:603, rl:16 },
-  { who:"元気注入係", handle:"@genki_chuunyu", icon:"☀️", color:"#fff0c9", time:"5時間", text:"【速報】ともちゃんが現れた瞬間、その場の元気が3割増しになりました。\nいつも元気いっぱいで、周りまでぱっと明るくなる。太陽みたいな人。", rp:47, lk:388, rl:9 },
-  { who:"毛糸のおじさん", handle:"@keito_oji", icon:"🧶", color:"#f6e3d0", time:"8時間", text:"ともちゃんが編むものは、目がきれいにそろってて、色づかいもかわいい。\n編み物が上手い人は、きっと心まで丁寧。", rp:21, lk:244, rl:6 },
-  { who:"一生懸命ウォッチャー", handle:"@isshokenmei", icon:"💪", color:"#dff3ff", time:"10時間", text:"ともちゃんって、何をやるにも一生懸命。\nうまくいかない日があっても、次の日にはまた全力で向き合ってる。その姿に何度も励まされてます。", rp:55, lk:472, rl:10 },
-  { who:"稽古場の壁", handle:"@keikoba_wall", icon:"🎬", color:"#e8e0ff", time:"12時間", text:"稽古場の壁です。\nともちゃんが誰よりも真剣に、何度でも同じシーンに向き合ってるのを毎日見てます。舞台に向かう姿勢が本当にかっこいい。", rp:66, lk:571, rl:10 },
-  { who:"ミュージカル好きの人", handle:"@musical_lover", icon:"🎶", color:"#f3dcee", time:"18時間", text:"歌も、ダンスも、お芝居も。\nミュージカルって大変なことだらけなのに、ともちゃんはいつも楽しそうに全力でやりきる。ほんとにすごい。", rp:44, lk:398, rl:8 },
-  { who:"努力を見てる人", handle:"@mite_ru", icon:"🌱", color:"#e3f5d2", time:"1日", text:"見えないところでこつこつ積み重ねてるの、みんな知ってるよ。\nともちゃんの上手さは、才能だけじゃなくて努力の結晶。えらい！", rp:52, lk:447, rl:8 },
-  { who:"かわいい保安官", handle:"@kawaii_sheriff", icon:"⭐", color:"#ffe3ec", time:"1日", text:"ともちゃん、かわいいが過ぎます。\n笑った顔も、真剣な顔も、ステージ上の顔も全部かわいい。逮捕します（いい意味で）。", rp:39, lk:402, rl:11 },
-  { who:"楽屋の隅っこ", handle:"@gakuya_corner", icon:"🪞", color:"#fde2d0", time:"2日", text:"本番前の楽屋でも、台本を片手に最後まで確認してるともちゃん。\n頑張りすぎないでね、でもその一生懸命さがみんなの力になってるよ。", rp:36, lk:341, rl:7 },
-  { who:"わたし", handle:"@me", icon:"😊", color:"#ffe6cc", time:"3日", text:"ともちゃん、誕生日おめでとう🎂🎉\nこれからも歌って、演じて、元気いっぱいに輝いてね。ずっと応援してる！", rp:99, lk:999, rl:27 }
+  { who:"わたし", handle:"@me", icon:"😊", color:"#ffe6cc", time:"2時間", text:"{N}の歌声、ほんとに好き。\n聴いてると心がぎゅっとつかまれて、気づいたら泣いてたりする。歌がうまい人は多いけど、届く歌を歌える人は少ないんだよ。", rp:34, lk:420, rl:12 },
+  { who:"客席の最前列", handle:"@front_row", icon:"🎭", color:"#ffe0d6", time:"3時間", text:"{N}の演技、役に入った瞬間に空気が変わる。\n目線ひとつ、指先ひとつまで物語になってて、ずっと見ていたくなる。", rp:58, lk:536, rl:14 },
+  { who:"頑張り屋さん協会", handle:"@ganbariya_kyokai", icon:"🔥", color:"#ffe9c2", time:"4時間", text:"【認定】{N}を「頑張り屋さん」殿堂入りとします。\nミュージカルもお芝居も、どっちも全力。手を抜く姿を見たことがありません。", rp:71, lk:603, rl:16 },
+  { who:"元気注入係", handle:"@genki_chuunyu", icon:"☀️", color:"#fff0c9", time:"5時間", text:"【速報】{N}が現れた瞬間、その場の元気が3割増しになりました。\nいつも元気いっぱいで、周りまでぱっと明るくなる。太陽みたいな人。", rp:47, lk:388, rl:9 },
+  { who:"毛糸のおじさん", handle:"@keito_oji", icon:"🧶", color:"#f6e3d0", time:"8時間", text:"{N}が編むものは、目がきれいにそろってて、色づかいもかわいい。\n編み物が上手い人は、きっと心まで丁寧。", rp:21, lk:244, rl:6 },
+  { who:"一生懸命ウォッチャー", handle:"@isshokenmei", icon:"💪", color:"#dff3ff", time:"10時間", text:"{N}って、何をやるにも一生懸命。\nうまくいかない日があっても、次の日にはまた全力で向き合ってる。その姿に何度も励まされてます。", rp:55, lk:472, rl:10 },
+  { who:"稽古場の壁", handle:"@keikoba_wall", icon:"🎬", color:"#e8e0ff", time:"12時間", text:"稽古場の壁です。\n{N}が誰よりも真剣に、何度でも同じシーンに向き合ってるのを毎日見てます。舞台に向かう姿勢が本当にかっこいい。", rp:66, lk:571, rl:10 },
+  { who:"ミュージカル好きの人", handle:"@musical_lover", icon:"🎶", color:"#f3dcee", time:"18時間", text:"歌も、ダンスも、お芝居も。\nミュージカルって大変なことだらけなのに、{N}はいつも楽しそうに全力でやりきる。ほんとにすごい。", rp:44, lk:398, rl:8 },
+  { who:"努力を見てる人", handle:"@mite_ru", icon:"🌱", color:"#e3f5d2", time:"1日", text:"見えないところでこつこつ積み重ねてるの、みんな知ってるよ。\n{N}の上手さは、才能だけじゃなくて努力の結晶。えらい！", rp:52, lk:447, rl:8 },
+  { who:"かわいい保安官", handle:"@kawaii_sheriff", icon:"⭐", color:"#ffe3ec", time:"1日", text:"{N}、かわいいが過ぎます。\n笑った顔も、真剣な顔も、ステージ上の顔も全部かわいい。逮捕します（いい意味で）。", rp:39, lk:402, rl:11 },
+  { who:"楽屋の隅っこ", handle:"@gakuya_corner", icon:"🪞", color:"#fde2d0", time:"2日", text:"本番前の楽屋でも、台本を片手に最後まで確認してる{N}。\n頑張りすぎないでね、でもその一生懸命さがみんなの力になってるよ。", rp:36, lk:341, rl:7 },
+  { who:"わたし", handle:"@me", icon:"😊", color:"#ffe6cc", time:"3日", text:"{N}、誕生日おめでとう🎂🎉\nこれからも歌って、演じて、元気いっぱいに輝いてね。ずっと応援してる！", rp:99, lk:999, rl:27 }
 ];
 const $=s=>document.querySelector(s);
-document.title=FRIEND.name+"への褒めタイムライン";
-$("#hname").textContent=FRIEND.name;$("#hcount").textContent=POSTS.length+"件のポスト";
-$("#pname").textContent=FRIEND.name;$("#phandle").textContent=FRIEND.handle;$("#pbio").textContent=FRIEND.bio;
-$("#end").textContent="まだまだ褒めたりないけど、このへんで。ハートは何回でも押してね🧡";
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const icons={
  rl:'<path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.7-5.2A8.4 8.4 0 1 1 21 11.5z"/>',
  rp:'<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>',
  lk:'<path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 22l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>'};
-let saved={};try{saved=JSON.parse(localStorage.getItem("tl")||"{}")}catch(e){}
+let saved={},myName="",asked=false;
+try{saved=JSON.parse(localStorage.getItem("tl")||"{}")}catch(e){}
+try{const v=localStorage.getItem("tlname");if(v!==null){asked=true;myName=v}}catch(e){}
 const save=()=>{try{localStorage.setItem("tl",JSON.stringify(saved))}catch(e){}};
 const fmt=n=>n>=10000?(n/10000).toFixed(1)+"万":n.toLocaleString();
-const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
-$("#tl").innerHTML=POSTS.map((p,i)=>{
- const s=saved[i]||{};
- const btn=(k,label)=>`<button class="${k}${s[k+"On"]?" on":""}" data-i="${i}" data-k="${k}" aria-label="${label}"><svg viewBox="0 0 24 24">${icons[k]}</svg><span>${fmt(p[k]+(s[k]||0))}</span></button>`;
- return `<article class="post"><div class="av" style="background:${p.color}">${p.icon}</div><div class="body">
- <div class="name"><b>${esc(p.who)}</b><span>${esc(p.handle)} ・ ${p.time}</span></div>
- <div class="text">${esc(p.text)}</div>
- <div class="acts">${btn("rl","返信")}${btn("rp","リポスト")}${btn("lk","いいね")}</div></div></article>`}).join("");
+const honor=n=>/(ちゃん|さん|くん|様|さま)$/.test(n)?n:n+"ちゃん";
+function render(){
+ const N=myName?honor(myName):FRIEND.name;
+ document.title=N+"への褒めタイムライン";
+ $("#hname").textContent=N;$("#hcount").textContent=POSTS.length+"件のポスト";
+ $("#pname").textContent=N;$("#phandle").textContent=FRIEND.handle;$("#pbio").textContent=FRIEND.bio;
+ $("#end").textContent="まだまだ褒めたりないけど、このへんで。ハートは何回でも押してね🧡";
+ $("#tl").innerHTML=POSTS.map((p,i)=>{
+  const s=saved[i]||{};
+  const btn=(k,label)=>`<button class="${k}${s[k+"On"]?" on":""}" data-i="${i}" data-k="${k}" aria-label="${label}"><svg viewBox="0 0 24 24">${icons[k]}</svg><span>${fmt(p[k]+(s[k]||0))}</span></button>`;
+  return `<article class="post"><div class="av" style="background:${p.color}">${p.icon}</div><div class="body">
+  <div class="name"><b>${esc(p.who)}</b><span>${esc(p.handle)} ・ ${p.time}</span></div>
+  <div class="text">${esc(p.text).split("{N}").join(esc(N))}</div>
+  <div class="acts">${btn("rl","返信")}${btn("rp","リポスト")}${btn("lk","いいね")}</div></div></article>`}).join("");
+}
 $("#tl").addEventListener("click",e=>{
  const b=e.target.closest("button");if(!b)return;
  const i=b.dataset.i,k=b.dataset.k;
@@ -98,6 +120,17 @@ $("#tl").addEventListener("click",e=>{
  b.classList.add("on");b.querySelector("span").textContent=fmt(POSTS[i][k]+saved[i][k]);
  b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop");
 });
+function openAsk(){$("#ask").hidden=false;$("#nm").value=myName;setTimeout(()=>$("#nm").focus(),50)}
+function submitName(){
+ myName=$("#nm").value.trim().slice(0,20);
+ try{localStorage.setItem("tlname",myName)}catch(e){}
+ $("#ask").hidden=true;render();
+}
+$("#go").addEventListener("click",submitName);
+$("#nm").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing)submitName()});
+$("#chg").addEventListener("click",openAsk);
+render();
+if(!asked)openAsk();
 </script>
 </body>
 </html>
