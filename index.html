@@ -62,6 +62,19 @@ html,body{overscroll-behavior-y:contain}
 .try{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 16px;font-size:13px;color:var(--sub);border-bottom:1px solid var(--line)}
 .try button{all:unset;cursor:pointer;flex:none;border:1px solid var(--accent);color:var(--accent);font-weight:700;font-size:13px;padding:6px 12px;border-radius:99px}
 .try button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+body.scary{--bg:#000;--fg:#a8a8a8;--sub:#7a1c1c;--line:#240000;--hover:#050000;--like:#600;--rt:#600;color-scheme:dark}
+body.scary::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:30;background:radial-gradient(ellipse at center,transparent 35%,#000 105%)}
+body.scary .wrap{border-color:#200}
+body.scary .av{box-shadow:0 0 0 1px #300,0 0 14px #3a0000}
+body.scary #pname,body.scary #hname{color:#b00;animation:glitch 3.2s infinite}
+body.scary .text{color:#c40000;letter-spacing:.08em;text-shadow:0 0 6px #500;animation:flick 5s infinite}
+body.scary .post.fresh{animation:dread 3.5s}
+body.scary .acts{opacity:.45}
+body.scary .try,body.scary .nudge{background:#070000;color:#7a1c1c}
+@keyframes glitch{0%,90%,100%{transform:none;text-shadow:none}92%{transform:translateX(-3px);text-shadow:3px 0 #f00,-3px 0 #444}95%{transform:translateX(3px);text-shadow:-3px 0 #f00}}
+@keyframes flick{0%,88%,100%{opacity:1}90%{opacity:.15}92%{opacity:1}95%{opacity:.35}97%{opacity:1}}
+@keyframes dread{from{opacity:0;filter:blur(6px)}to{opacity:1;filter:none}}
+@media (prefers-reduced-motion:reduce){body.scary *{animation:none!important}}
 #ptr{height:0;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;color:var(--sub);font-size:13px}
 @media (prefers-reduced-motion:reduce){.post.fresh{animation:none}}
 </style>
@@ -129,9 +142,9 @@ P("人狼村の住人","@jinro_mura","🐺","#e8e0ff","1日","人狼ゲームの
 P("努力を見てる人","@mite_ru","🌱","#e3f5d2","2日","{N}が努力してるの、みんな知ってるよ。\n見えないところで積み重ねて、ちゃんと結果を出す人。心から尊敬してる。",58,479,11),
 P("ネイル研究会","@nail_lab","💅","#ffe3f3","2日","{N}のネイル、細かいところまで丁寧で、センスがすごい。\n男の人でここまで上手い人、なかなかいない。",72,611,16)
 ]},
-yuuka:{suffix:"ちゃん",handle:"@",bio:"",icon:"",iconBg:"#000",accent:"#7a0000",cover:"#000",end:"",posts:[
-P("","@","","#000","たった今","全部知ってるよ。",0,0,0),
-P("","@","","#000","1分","結婚おめでとう！",0,0,0)
+yuuka:{suffix:"ちゃん",handle:"@",bio:"",icon:"",iconBg:"#000",accent:"#8b0000",cover:"#000",nudge:"…まだ、あるよ。",end:"お幸せに。",posts:[
+P("","@","","#000","2026.10.2","全部知ってるよ。",0,0,0),
+P("","@","","#000","2026.10.2","結婚おめでとう！",0,0,0)
 ]},
 generic:{suffix:"さん",handle:"@you_are_great",bio:"いつもお疲れ様。ちゃんと見てるよ🌿",icon:"🌿",iconBg:"#dcf7e8",accent:"#1d9bf0",cover:"linear-gradient(120deg,#7ee0c3,#4aa8ff 60%,#6b6bff)",end:"全部読んでくれてありがとう！ハートは何回でも押してね💙",posts:[
 P("わたし","@me","😊","#ffe6cc","たった今","{N}、いつもありがとう。\nこれからもよろしくね！",36,298,6),
@@ -163,12 +176,14 @@ function render(){
  const N=myName?honor(myName,PR.suffix):"あなた";
  const L=POSTS.length,sh=Math.min(shown,L),start=L-sh,done=sh>=L;
  document.title="birthday present";
+ document.body.classList.toggle("scary",PK==="yuuka");
  document.documentElement.style.setProperty("--accent",PR.accent);
  $(".cover").style.background=PR.cover;
  $("#pav").style.background=PR.iconBg;$("#pav").textContent=PR.icon;
- $("#hname").textContent=N;$("#hcount").textContent=sh+"件のポスト";
+ $("#hname").textContent=N;$("#hcount").textContent=PK==="yuuka"?"…":sh+"件のポスト";
  $("#pname").textContent=N;$("#phandle").textContent=PR.handle;$("#pbio").textContent=PR.bio;
  $("#nudge").hidden=done;
+ $("#nudgetxt").textContent=PR.nudge||defNudge;
  $("#end").textContent=done?PR.end:"";
  $("#tl").innerHTML=POSTS.map((p,i)=>({p,i})).slice(start).map(({p,i})=>{
   const s=saved[PK+i]||{};
@@ -195,7 +210,7 @@ $("#go").addEventListener("click",submitName);
 $("#nm").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing)submitName()});
 $("#chg").addEventListener("click",openAsk);
 const touch=matchMedia("(pointer:coarse)").matches;
-$("#nudgetxt").textContent=touch?"👇 画面を下にスワイプして更新すると、新しいつぶやきが届くよ！":"🔄 ページを更新すると、新しいつぶやきが届くよ！";
+const defNudge=touch?"👇 画面を下にスワイプして更新すると、新しいつぶやきが届くよ！":"🔄 ページを更新すると、新しいつぶやきが届くよ！";
 $("#rf").hidden=touch;
 function more(){if(shown>=POSTS.length)return;shown++;try{localStorage.setItem("tlshown",shown)}catch(e){}render();const n=document.querySelector(".post.fresh");if(n)n.scrollIntoView({behavior:"smooth",block:"center"})}
 $("#rf").addEventListener("click",more);
