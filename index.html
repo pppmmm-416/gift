@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>みんなからの褒めタイムライン</title>
+<title>birthday present</title>
 <style>
 :root{--bg:#fff;--fg:#0f1419;--sub:#536471;--line:#eff3f4;--accent:#f28c28;--like:#f91880;--rt:#00ba7c;--hover:#f7f9f9;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -101,7 +101,7 @@ const fmt=n=>n>=10000?(n/10000).toFixed(1)+"万":n.toLocaleString();
 const honor=n=>/(ちゃん|さん|くん|様|さま)$/.test(n)?n:n+"ちゃん";
 function render(){
  const N=myName?honor(myName):FRIEND.name;
- document.title=N+"への褒めタイムライン";
+ document.title="birthday present";
  $("#hname").textContent=N;$("#hcount").textContent=POSTS.length+"件のポスト";
  $("#pname").textContent=N;$("#phandle").textContent=FRIEND.handle;$("#pbio").textContent=FRIEND.bio;
  $("#end").textContent="まだまだ褒めたりないけど、このへんで。ハートは何回でも押してね🧡";
