@@ -67,6 +67,42 @@ html,body{overscroll-behavior-y:contain}
 .try{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 16px;font-size:13px;color:var(--sub);border-bottom:1px solid var(--line)}
 .try button{all:unset;cursor:pointer;flex:none;border:1px solid var(--accent);color:var(--accent);font-weight:700;font-size:13px;padding:6px 12px;border-radius:99px}
 .try button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+body.gone{--bg:#fff;--fg:#222;--sub:#9a9a9a;--line:#eee;--hover:#fafafa;color-scheme:light}
+body.gone .av{box-shadow:inset 0 0 0 1px #e6e6e6}
+body.fading{background:#fff!important;transition:background 4.2s linear}
+.wrap.vanish{pointer-events:none;animation:vanish 4.5s ease-in forwards}
+.wrap.appear{animation:appear 3s ease-out}
+@keyframes vanish{0%{opacity:1;filter:none}50%{opacity:.55;filter:blur(2px) brightness(1.3)}100%{opacity:0;filter:blur(12px) brightness(3)}}
+@keyframes appear{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.wrap.vanish,.wrap.appear{animation:none}}
+.rq{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:4px;margin-top:4px;color:var(--sub);font-size:12px;padding:4px 6px;border-radius:99px}
+.rq svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rq:hover,.rq:focus-visible{color:var(--accent)}
+#clear{background:rgba(255,255,255,.92)!important}
+#clear .card{border:1px solid #ddd;color:#222}
+#clear .card h2{font-size:28px;letter-spacing:.12em;margin:10px 0 6px;color:#222}
+#clear .card button{background:#222;color:#fff}
+#clear .card button.alt{background:transparent;color:#222;border:1px solid #bbb;margin-top:10px}
+#rconf{background:rgba(255,255,255,.94)!important}
+#rconf .card{border:1px solid #ddd;color:#222}
+#rconf .card h2{margin:6px 0 10px;color:#222}
+#rconf .card p{color:#444;margin:0 0 6px;line-height:1.7}
+#rconf .card button{background:#222;color:#fff}
+#rconf .card button.alt{background:transparent;color:#222;border:1px solid #bbb;margin-top:10px}
+body.devil{--bg:#0a0a0a;--fg:#e8e8e8;--sub:#8a8a8a;--line:#262626;--hover:#111;color-scheme:dark}
+.av.sm{width:28px;height:28px;font-size:14px}
+.thread:empty{display:none}
+.rep{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:14px}
+.rep .name{font-size:13px}.rep .text{margin:0}
+.rbox{margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.rto{font-size:12px;color:var(--sub);margin-bottom:4px}
+.rbox textarea{width:100%;font:inherit;font-size:16px;background:var(--bg);color:var(--fg);border:0;outline:0;resize:none}
+.rbox button{all:unset;cursor:pointer;display:block;margin-left:auto;background:var(--accent);color:#fff;font-weight:700;font-size:14px;padding:6px 16px;border-radius:99px}
+.rbox button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+#upd{background:rgba(0,0,0,.5)!important}
+#upd .card h2{color:var(--accent);letter-spacing:.06em;margin-bottom:12px}
+#upd .card p{color:var(--fg);margin:0 0 10px}
+#upd .card p.updlist{background:var(--hover);border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:left;font-size:13px;line-height:1.7}
 body.scary{--bg:#fff;--fg:#333;--sub:#9a9a9a;--line:#e4e4e4;--hover:#fafafa;--like:#8b0000;--rt:#8b0000;color-scheme:light}
 body.scary::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:30;background:radial-gradient(ellipse at center,transparent 45%,rgba(60,0,0,.2) 110%)}
 body.scary .wrap{border-color:#ddd}
@@ -123,6 +159,20 @@ body.scary .try,body.scary .nudge{background:#f6f6f6;color:#8a8a8a}
 <div class="ask" id="trap" role="alertdialog" aria-labelledby="trapmsg" hidden><div class="card">
 <h2 id="trapmsg">もう変えなくていいでしょう？</h2>
 <button id="trapok">分かりました</button></div></div>
+<div class="ask" id="upd" role="dialog" aria-labelledby="updt" hidden><div class="card">
+<h2 id="updt">【UP DATE!】</h2>
+<p>場所も褒められるようになりました！</p>
+<p class="updlist">以下の施設に対応<br>・TBS赤坂ACTシアター</p>
+<button id="updok">OK</button></div></div>
+<div class="ask" id="clear" role="dialog" aria-labelledby="clrt" hidden><div class="card">
+<h2 id="clrt">GAME CLEAR!</h2>
+<button id="clearback">名前入力欄に戻る</button>
+<button id="clearreset" class="alt">はじめから遊ぶ</button></div></div>
+<div class="ask" id="rconf" role="alertdialog" aria-labelledby="rconft" hidden><div class="card">
+<h2 id="rconft">確認</h2>
+<p>今までのプレイデータがすべて消えます。<br>はじめから遊びますか？</p>
+<button id="rconfyes">はじめから遊ぶ</button>
+<button id="rconfno" class="alt">やめる</button></div></div>
 <script>
 // ★ここを書き換えれば中身が変わります
 const P=(who,handle,icon,color,time,text,rp,lk,rl)=>({who,handle,icon,color,time,text,rp,lk,rl});
@@ -176,15 +226,38 @@ P("見てる人","@mite_iru","👀","#e3f5d2","1日","頑張ってるね。\n{N}
 P("ねぎらい係","@negirai","☕","#fff0c9","1日","お疲れ様。\n今日もよくやったね。ゆっくり休んでね。",58,477,10)
 ]}
 };
-const clearAll=()=>{window.noWarn=true;try{["tlname","tlshown","tl2","tl"].forEach(k=>localStorage.removeItem(k))}catch(e){}};
-if(/[?&]reset\b/.test(location.search))clearAll();
+PROFILES.act={reply:1,fixed:"TBS赤坂ACTシアター",suffix:"",handle:"@act_parody",bio:"「ハリー・ポッターと呪いの子」ロングラン上演中🪄 ※非公式のパロディアカウントです",icon:"🪄",iconBg:"#ffe0e0",accent:"#c8102e",cover:"linear-gradient(120deg,#ff5a5a,#c8102e 55%,#6e0a18)",end:"",posts:[
+P("TBS赤坂ACTシアター","@act_parody","🪄","#ffe0e0","たった今","では、悪魔はどこに住んでいたのでしょう？\n分かった人はこのポストに、リプライで教えてくださいね。\n分からない人は、「ヒント」と送ってください。",214,986,57),
+P("TBS赤坂ACTシアター","@act_parody","🪄","#ffe0e0","1分","その理由は、2022年から、\n悪魔が住む場所がなくなってしまったからだとか。",98,640,31),
+P("TBS赤坂ACTシアター","@act_parody","🪄","#ffe0e0","3分","でもなぜか、2022年からはしばらく、\nその姿を見せていないそうです。",87,598,24),
+P("TBS赤坂ACTシアター","@act_parody","🪄","#ffe0e0","5分","最前列の悪魔はその名前の通り、\n最前列に座ったお客様にいたずらをしていたとか。\n突然目の前に現れてみたり、客席の間を移動してみたり……",132,812,40),
+P("TBS赤坂ACTシアター","@act_parody","🪄","#ffe0e0","8分","その名も……「最前列の悪魔」！",76,533,19),
+P("TBS赤坂ACTシアター","@act_parody","🪄","#ffe0e0","10分","ところで……\nこの劇場にまつわる、こんな噂をご存じですか？",64,471,22),
+P("TBS赤坂ACTシアター","@act_parody","🪄","#ffe0e0","12分","TBS赤坂ACTシアターです！\n現在、「ハリー・ポッターと呪いの子」ロングラン上演中！",301,1520,48)
+]};
+PROFILES.devil={reply:1,fixed:"最前列の悪魔",suffix:"",handle:"@front_row_devil",bio:"",icon:"😈",iconBg:"#1a1a1a",accent:"#555",cover:"linear-gradient(120deg,#000,#2a2a2a 60%,#000)",end:"",posts:[
+P("最前列の悪魔","@front_row_devil","😈","#1a1a1a","たった今","私は最前列の悪魔。\nさて、私がいつ帰ってくるか分かるかな？",666,666,6)
+]};
+PROFILES.wizard={reply:1,fixed:"魔法使い",suffix:"",handle:"@wizard_comeback",bio:"",icon:"👓",iconBg:"#dbeafe",accent:"#1a73e8",cover:"linear-gradient(120deg,#6db3ff,#1a73e8 55%,#0b3a8c)",end:"",posts:[
+P("魔法使い","@wizard_comeback","👓","#dbeafe","たった今","答えが分かったら、このポストにリプライを送って。\n「ヒント」と送ってくれたら、僕なりの考えを話すよ。",18,142,5),
+P("魔法使い","@wizard_comeback","👓","#dbeafe","1分","十四となるは、師走に帰る者。\n二十七となるは、葉月に始まる者。\n彼らを当て嵌めた時、\n欠落する中央に残る二人の男。\n男のうち、再び師走に帰る者。\n彼が弥生から水無月に、身を置いていた世界は何処？",42,215,17),
+P("魔法使い","@wizard_comeback","👓","#dbeafe","3分","断片的に次の情報を知ってるけれど、君はこれの答えが分かる？",21,158,9),
+P("魔法使い","@wizard_comeback","👓","#dbeafe","5分","どんな呪文かというと、実は僕もまだはっきり知らないんだ。",16,131,6),
+P("魔法使い","@wizard_comeback","👓","#dbeafe","8分","それはすごーく長い上に、すごーく難しいらしくて……\nそれにどうやら、僕が住む世界の呪文ではないらしい。",24,176,8),
+P("魔法使い","@wizard_comeback","👓","#dbeafe","10分","僕を見つけてくれてありがとう。\n最前列の悪魔を止めるには、“ある呪文”を唱える必要がある。",51,302,14)
+]};
+PROFILES.gone={thread:1,fixed:"このアカウントは存在しません",suffix:"",handle:"@",bio:"",icon:"",iconBg:"#fff",accent:"#aaa",cover:"linear-gradient(180deg,#fff,#f3f3f3)",end:"",posts:[
+P("このアカウントは存在しません","@","","#fff","たった今","このアカウントは存在しません。",0,0,0)
+]};
+const clearAll=(full)=>{window.noWarn=true;try{["tlname","tlshown","tl2","tl"].concat(full?["tlupd","tldevil","tlwiz","tlspell","tlgone","tlclear"]:[]).forEach(k=>localStorage.removeItem(k))}catch(e){}};
+if(/[?&]reset\b/.test(location.search))clearAll(true);
 const $=s=>document.querySelector(s);
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const icons={
  rl:'<path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.7-5.2A8.4 8.4 0 1 1 21 11.5z"/>',
  rp:'<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>',
  lk:'<path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 22l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>'};
-const match=n=>{const t=n.toLowerCase();if(t.includes("佐藤優香"))return "yuuka";for(const [k,ws] of KEYS)if(ws.some(w=>t.includes(w.toLowerCase())))return k;return "generic"};
+const match=n=>{const t=n.normalize("NFKC").toLowerCase().replace(/\s/g,"");if(t.includes("佐藤優香"))return "yuuka";if(t.includes("tbs赤坂actシアター"))return "act";if(goneOK&&t.includes("最前列の悪魔"))return "gone";if(devilOK&&t.includes("最前列の悪魔"))return "devil";if(wizOK&&t.includes("魔法使い"))return "wizard";for(const [k,ws] of KEYS)if(ws.some(w=>t.includes(w.toLowerCase())))return k;return "generic"};
 let saved={},myName="",asked=false,PK="generic",PR=PROFILES.generic,POSTS=PR.posts;
 try{saved=JSON.parse(localStorage.getItem("tl2")||"{}")}catch(e){}
 try{const v=localStorage.getItem("tlname");if(v!==null){asked=true;myName=v}}catch(e){}
@@ -193,12 +266,99 @@ try{shown=(+localStorage.getItem("tlshown")||0)+1;localStorage.setItem("tlshown"
 const save=()=>{try{localStorage.setItem("tl2",JSON.stringify(saved))}catch(e){}};
 const fmt=n=>n>=10000?(n/10000).toFixed(1)+"万":n.toLocaleString();
 const honor=(n,s)=>/(ちゃん|さん|くん|様|さま)$/.test(n)?n:n+s;
+let devilOK=false,wizOK=false,spellOK=false,goneOK=false,goneAnim=false,replyOpen=false;
+try{devilOK=localStorage.getItem("tldevil")==="1";wizOK=localStorage.getItem("tlwiz")==="1";spellOK=localStorage.getItem("tlspell")==="1";goneOK=localStorage.getItem("tlgone")==="1"}catch(e){}
+const GONE_MSGS=["最前列の悪魔を止めてくれてありがとう！","君のひらめきのおかげで、世界が一つ救われた。","君も立派な「魔法使い」だ！","え？君は魔法使いにはならないって？……そんなこと言うなよ。","魔法は何度でも帰ってくる。","その時に、君がいないのは寂しいな。","それじゃあまた、この劇場で会おう！"];
+const ACC={me:{n:"あなた",h:"@you",i:"🙂",c:"#e6e6e6"},act:{n:"TBS赤坂ACTシアター",h:"@act_parody",i:"🪄",c:"#ffe0e0"},devil:{n:"最前列の悪魔",h:"@front_row_devil",i:"😈",c:"#1a1a1a"},wiz:{n:"魔法使い",h:"@wizard_comeback",i:"👓",c:"#dbeafe"}};
+const norm=r=>r.normalize("NFKC").toLowerCase().replace(/\s/g,"").replace(/[〜～∼−–—―ー－-]/g,"~");
+const isSpell=r=>{const t=r.normalize("NFKC").toLowerCase().replace(/[ー・\s\-―–—−‐]/g,"");return t.includes("スパカリフラジリスティックエクスピアリドシャス")||t.includes("supercalifragilisticexpialidocious")};
+const WH={
+6:"あ！大貫さんは12月6日の夜に、また劇場に戻ってくるみたいだ。\nじゃあ大貫さんが、2026年の3月から6月にやっていた公演はなんだろう？\nその作品名が、答えになるかもしれない。",
+5:"残る2人……もしかして大貫さんと吉沢さん？この2人のうち、12月に帰ってくるのはどっちだろう？\nまだ分からなかったら、ヒント6とリプライを送ってね。",
+4:"座席表の番号とあの役……ハリー・ポッター役を演じる俳優を、\n公式ビジュアルの順番で当てはめると、14は藤原さん、27は小野さんかな……？\n僕たちの世界では、座席は14～17と、24～27に分かれてる。\nとなると、残る2人って……？\nまだ分からなかったら、ヒント5とリプライを送ってね。",
+3:"僕たちの世界において、帰ってくる、始まるといえば……あの役の俳優のことかな？\nあの役を演じる10人の俳優を、座席表の番号に当てはめてみる？\nまだ分からなかったら、ヒント4とリプライを送ってね。",
+2:"師走に帰る者、葉月に始まる者……師走は12月、葉月は8月だよね。12月に帰ってくる人、8月から始まった人って誰だろう？\nまだ分からなかったら、ヒント3とリプライを送ってね。",
+1:"14、27……これはもしかして、座席表じゃないかな？僕たちの世界での、座席表を見てみるといいかも？\nまだ分からなかったら、ヒント2とリプライを送ってね。"};
+const ANS={
+ act:raw=>{const t=norm(raw);
+  if(/1階a列の?18~23番/.test(t))return{unlock:"devil",msgs:[["act","正解です！でもどうやらこの悪魔、帰ってきてしまうかもしれないんです……\nおや？悪魔もSNSを始めてしまったみたいですね……\n名前入力で「最前列の悪魔」と打つと、何か分かるかもしれません……"]]};
+  if(t.includes("ヒント3"))return{msgs:[["act","「〇階〇列の○○～○○番」の形で答えてくださいね。"]]};
+  if(t.includes("ヒント2"))return{msgs:[["act","TBS赤坂ACTシアターのホームページへ行って、座席表を見比べてみましょう。上手く入力できない人はヒント3とリプライを送ってください。"]]};
+  if(t.includes("ヒント"))return{msgs:[["act","昔の劇場にあって、今の劇場にないものです。まだ分からない人はヒント2とリプライを送ってくださいね。"]]};
+  return{msgs:[["act","残念！違うみたいです……"]]};
+ },
+ devil:raw=>{const t=norm(raw);
+  if(spellOK){
+   if(isSpell(raw))return{then:"vanish",gap:1700,msgs:[["devil","ぐああああ……！ど、どうしてその呪文を……"],["devil","こ、こんなはずでは……"]]};
+   return{msgs:[["devil","お前は何を言ってるんだ？もう何をしたところで、我を止める手段などない……"]]};
+  }
+  if(/2027年の?3月/.test(t))return{unlock:"wiz",msgs:[["devil","正解だ。住む場所を取り戻せばもう、我を止められるものはいない……"],["wiz","ちょっと待って！最前列の悪魔を止める方法はあるんだ！僕のアカウントに来て！"]]};
+  if(t.includes("ヒント"))return{msgs:[["devil","ヒントなどない。我が帰ってくるとき、それは我の住む場所が戻ってくるとき。最前列が再び現れるときだ。来年の春ごろになるだろうな……"],["devil","劇場がリニューアルしてしまえば、もう我のものよ。"]]};
+  return{msgs:[["devil","フフ……違うな。もう一度考えてみるがいい。"]]};
+ },
+ wizard:(raw,tgt)=>{
+  if(tgt==="q"){
+   if(isSpell(raw))return{unlock:"spell",msgs:[["wiz","それだよ！この呪文を最前列の悪魔に唱えればいいんだ。"],["wiz","最前列の悪魔のアカウントに戻って、この呪文を入力してみよう！"]]};
+   return{msgs:[["wiz","君ならできるよ！頑張って！"]]};
+  }
+  const m=raw.normalize("NFKC").toLowerCase().replace(/[ー・\s\-―–—−‐]/g,"");
+  if(m.includes("メリポピンズ")||m.includes("marypoppins"))return{msgs:[["wiz","それだ！答えは「メリー・ポピンズ」だ。じゃあこの世界に登場する、有名な呪文ってなんだろう？",1]]};
+  const t=norm(raw);
+  for(let n=6;n>=1;n--)if(t.includes("ヒント"+n))return{msgs:[["wiz",WH[n]]]};
+  if(t.includes("ヒント"))return{msgs:[["wiz",WH[1]]]};
+  return{msgs:[["wiz","君ならできるよ！頑張って！"]]};
+ }};
+function extra(i){
+ if(!(PR.reply||PR.thread)||i!==0)return "";
+ const rows=saved["rep_"+PK]||[];
+ const box=`<div class="rbox"><div class="rto">返信先：${esc(PR.handle)}</div><textarea id="rtext" rows="2" maxlength="80" placeholder="返信をポスト"></textarea><button id="rsend">返信</button></div>`;
+ const th=rows.map(r=>{const a=ACC[r.f];return `<div class="rep"><div class="av sm" style="background:${a.c}">${a.i}</div><div style="min-width:0;flex:1"><div class="name"><b>${a.n}</b><span>${a.h}</span></div><div class="text">${esc(r.t)}</div>${r.q&&PR.reply?`<button class="rq" data-q="1" aria-label="このリプライに返信"><svg viewBox="0 0 24 24">${icons.rl}</svg>返信</button>`:""}${replyOpen==="q"&&r.q?box:""}</div></div>`}).join("");
+ return (PR.reply&&replyOpen==="post"?box:"")+`<div class="thread">${th}</div>`;
+}
+function rerender(){const ta=$("#rtext"),v=ta?ta.value:"";render();const t2=$("#rtext");if(t2)t2.value=v}
+function unlockK(k){const K={devil:"tldevil",wiz:"tlwiz",spell:"tlspell"};if(k==="devil")devilOK=true;if(k==="wiz")wizOK=true;if(k==="spell")spellOK=true;try{localStorage.setItem(K[k],"1")}catch(e){}}
+function showClear(){try{if(localStorage.getItem("tlclear")==="1")return;localStorage.setItem("tlclear","1")}catch(e){}$("#clear").hidden=false;$("#clearback").focus()}
+function runVanish(){
+ goneAnim=true;
+ const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches,wrap=document.querySelector(".wrap");
+ document.body.classList.add("fading");wrap.classList.add("vanish");
+ setTimeout(()=>{
+  goneOK=true;try{localStorage.setItem("tlgone","1")}catch(e){}
+  saved.rep_gone=[];replyOpen=false;save();
+  document.body.classList.remove("fading");wrap.classList.remove("vanish");
+  render();wrap.classList.add("appear");setTimeout(()=>wrap.classList.remove("appear"),3200);
+  GONE_MSGS.forEach((t,n)=>setTimeout(()=>{
+   saved.rep_gone.push({f:"wiz",t});save();render();
+   if(n===GONE_MSGS.length-1)setTimeout(()=>{goneAnim=false;showClear()},1800);
+  },2800+2300*n));
+ },reduce?400:4600);
+}
+function sendReply(){
+ const ta=$("#rtext"),raw=ta?ta.value.trim():"";if(!raw||!ANS[PK])return;
+ const pk=PK,rk="rep_"+pk,key=pk+"0",tgt=replyOpen||"post";
+ saved[rk]=saved[rk]||[];saved[rk].push({f:"me",t:raw});
+ saved[key]=saved[key]||{};saved[key].rl=(saved[key].rl||0)+1;saved[key].rlOn=true;
+ save();render();const t2=$("#rtext");if(t2)t2.focus();
+ const a=ANS[pk](raw,tgt),gap=a.gap||900;
+ a.msgs.forEach((m,n)=>setTimeout(()=>{
+  saved[rk]=saved[rk]||[];saved[rk].push({f:m[0],t:m[1],q:m[2]});
+  saved[key]=saved[key]||{};saved[key].rl=(saved[key].rl||0)+1;
+  const last=n===a.msgs.length-1;
+  if(last&&a.unlock)unlockK(a.unlock);
+  save();if(PK===pk)rerender();
+  if(last&&a.then==="vanish")setTimeout(runVanish,2700);
+ },gap*(n+1)));
+}
+$("#tl").addEventListener("keydown",e=>{if(e.target.id==="rtext"&&e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();sendReply()}});
 function render(){
  PK=myName?match(myName):"generic";PR=PROFILES[PK];POSTS=PR.posts;
- const N=myName?honor(myName,PR.suffix):"あなた";
+ const N=PR.fixed||(myName?honor(myName,PR.suffix):"あなた");
  const L=POSTS.length,sh=Math.min(shown,L),start=L-sh,done=sh>=L;
  document.title="birthday present";
  document.body.classList.toggle("scary",PK==="yuuka");
+ document.body.classList.toggle("devil",PK==="devil");
+ document.body.classList.toggle("gone",PK==="gone");
+ if(PK==="gone"&&!goneAnim&&!(saved.rep_gone&&saved.rep_gone.length))saved.rep_gone=GONE_MSGS.map(t=>({f:"wiz",t}));
  document.documentElement.style.setProperty("--accent",PR.accent);
  $(".cover").style.background=PR.cover;
  $("#pav").style.background=PR.iconBg;$("#pav").textContent=PR.icon;
@@ -213,11 +373,14 @@ function render(){
   return `<article class="post${i===start&&sh>1?" fresh":""}"><div class="av" style="background:${p.color}">${p.icon}</div><div class="body">
   <div class="name"><b>${esc(p.who)}</b><span>${esc(p.handle)} ・ ${p.time}</span></div>
   <div class="text">${esc(p.text).split("{N}").join(esc(N))}</div>
-  <div class="acts">${btn("rl","返信")}${btn("rp","リポスト")}${btn("lk","いいね")}</div></div></article>`}).join("");
+  <div class="acts">${btn("rl","返信")}${btn("rp","リポスト")}${btn("lk","いいね")}</div>${extra(i)}</div></article>`}).join("");
 }
 $("#tl").addEventListener("click",e=>{
  const b=e.target.closest("button");if(!b)return;
+ if(b.id==="rsend"){sendReply();return}
+ if(b.dataset.q){replyOpen=replyOpen==="q"?false:"q";rerender();const tq=$("#rtext");if(tq)tq.focus();return}
  const i=b.dataset.i,k=b.dataset.k,key=PK+i;
+ if(PR.reply&&i==="0"&&k==="rl"){replyOpen=replyOpen==="post"?false:"post";rerender();const ta=$("#rtext");if(ta)ta.focus();return}
  saved[key]=saved[key]||{};saved[key][k]=(saved[key][k]||0)+1;saved[key][k+"On"]=true;save();
  b.classList.add("on");b.querySelector("span").textContent=fmt(POSTS[i][k]+saved[key][k]);
  b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop");
@@ -228,7 +391,7 @@ function submitName(){
  if(raw.includes("引地優香")){showTrap("“今”の名前を入力してね！");$("#nm").value="";return}
  myName=raw;
  try{localStorage.setItem("tlname",myName)}catch(e){}
- $("#ask").hidden=true;document.body.classList.remove("asking");render();
+ $("#ask").hidden=true;document.body.classList.remove("asking");replyOpen=false;render();if(PK==="gone"&&!goneAnim)showClear();
 }
 $("#go").addEventListener("click",submitName);
 $("#nm").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing)submitName()});
@@ -241,7 +404,7 @@ let y0=null,dy=0;const ptr=$("#ptr");
 addEventListener("touchstart",e=>{if(scrollY<=0&&$("#ask").hidden&&shown<POSTS.length){y0=e.touches[0].clientY;dy=0}else y0=null},{passive:true});
 addEventListener("touchmove",e=>{if(y0===null)return;dy=e.touches[0].clientY-y0;if(dy>0&&scrollY<=0){e.preventDefault();const h=Math.min(dy*.5,64);ptr.style.height=h+"px";ptr.textContent=h>=48?"離すと更新 🔄":"↓ 引っ張って更新"}else{ptr.style.height="0px"}},{passive:false});
 addEventListener("touchend",()=>{if(y0===null)return;const go=dy*.5>=48;y0=null;ptr.style.transition="height .25s";ptr.style.height="0px";ptr.textContent="";setTimeout(()=>{ptr.style.transition="";if(go)more()},250)});
-$("#try").addEventListener("click",()=>{if(PK==="yuuka"){showTrap("もう変えなくていいでしょう？");return}clearAll();location.reload()});
+$("#try").addEventListener("click",()=>{if(PK==="yuuka"){showTrap("もう変えなくていいでしょう？");return}const grp=["furusawa","satou","komusubi"].includes(PK);clearAll();try{if(grp&&localStorage.getItem("tlupd")!=="done")localStorage.setItem("tlupd","pending")}catch(e){}location.reload()});
 $("#trapok").addEventListener("click",()=>{$("#trap").hidden=true;if(!$("#ask").hidden)$("#nm").focus()});
 function showTrap(m){$("#trapmsg").textContent=m;$("#trap").hidden=false;$("#trapok").focus()}
 (function(){
@@ -259,9 +422,16 @@ function showTrap(m){$("#trapmsg").textContent=m;$("#trap").hidden=false;$("#tra
  addEventListener("beforeunload",e=>{if(document.body.classList.contains("scary")&&!window.noWarn){e.preventDefault();e.returnValue=""}});
 })();
 let taps=0,tapT;
-$("header").addEventListener("click",()=>{taps++;clearTimeout(tapT);tapT=setTimeout(()=>{taps=0},2500);if(taps>=5){clearAll();location.reload()}});
+$("header").addEventListener("click",()=>{taps++;clearTimeout(tapT);tapT=setTimeout(()=>{taps=0},2500);if(taps>=5){clearAll(true);location.reload()}});
+$("#updok").addEventListener("click",()=>{$("#upd").hidden=true;$("#nm").focus()});
+$("#clearback").addEventListener("click",()=>{clearAll();location.reload()});
+$("#clearreset").addEventListener("click",()=>{$("#rconf").hidden=false;$("#rconfno").focus()});
+$("#rconfno").addEventListener("click",()=>{$("#rconf").hidden=true;$("#clearback").focus()});
+$("#rconfyes").addEventListener("click",()=>{clearAll(true);location.reload()});
 render();
+if(asked&&PK==="gone"&&!goneAnim)showClear();
 if(!asked)openAsk();
+try{if(!asked&&localStorage.getItem("tlupd")==="pending"){localStorage.setItem("tlupd","done");$("#upd").hidden=false;$("#updok").focus()}}catch(e){}
 </script>
 </body>
 </html>
