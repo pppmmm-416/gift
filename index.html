@@ -103,31 +103,6 @@ body.devil{--bg:#0a0a0a;--fg:#e8e8e8;--sub:#8a8a8a;--line:#262626;--hover:#111;c
 #upd .card h2{color:var(--accent);letter-spacing:.06em;margin-bottom:12px}
 #upd .card p{color:var(--fg);margin:0 0 10px}
 #upd .card p.updlist{background:var(--hover);border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:left;font-size:13px;line-height:1.7}
-body.scary{--bg:#fff;--fg:#333;--sub:#9a9a9a;--line:#e4e4e4;--hover:#fafafa;--like:#8b0000;--rt:#8b0000;color-scheme:light}
-body.scary::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:30;background:radial-gradient(ellipse at center,transparent 45%,rgba(60,0,0,.2) 110%)}
-body.scary .wrap{border-color:#ddd}
-body.scary .av{box-shadow:0 0 0 1px #000}
-body.scary #pname,body.scary #hname{color:#8b0000;animation:glitch 3.2s infinite}
-body.scary .text{color:#8b0000;letter-spacing:.08em;text-shadow:0 0 5px rgba(139,0,0,.35);animation:flick 5s infinite}
-body.scary .post.fresh{animation:dread 3.5s}
-body.scary .acts{opacity:.45}
-body.scary::before{content:"";position:fixed;inset:-50%;pointer-events:none;z-index:29;opacity:.1;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain .5s steps(4) infinite}
-body.scary::after{background:radial-gradient(ellipse at center,transparent 32%,rgba(50,0,0,.4) 110%);animation:beat 5s ease-in-out infinite}
-body.scary .text{animation:flick 5s infinite,shiver 7s infinite}
-#ghost{position:fixed;z-index:31;pointer-events:none;color:#8b0000;font-size:34px;font-weight:700;letter-spacing:.2em;white-space:nowrap;opacity:0}
-@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-1%)}100%{transform:translate(3%,3%)}}
-@keyframes beat{0%,100%{opacity:.6}50%{opacity:1}}
-@keyframes shiver{0%,93%,100%{transform:none}95%{transform:translate(2px,-1px) skewX(-3deg)}97%{transform:translate(-2px,1px) skewX(3deg)}}
-@media (prefers-reduced-motion:reduce){body.scary::before,body.scary::after{animation:none!important}}
-body.scary .try,body.scary .nudge{background:#f6f6f6;color:#8a8a8a}
-@keyframes glitch{0%,90%,100%{transform:none;text-shadow:none}92%{transform:translateX(-3px);text-shadow:3px 0 #f00,-3px 0 #444}95%{transform:translateX(3px);text-shadow:-3px 0 #f00}}
-@keyframes flick{0%,88%,100%{opacity:1}90%{opacity:.15}92%{opacity:1}95%{opacity:.35}97%{opacity:1}}
-@keyframes dread{from{opacity:0;filter:blur(6px)}to{opacity:1;filter:none}}
-@media (prefers-reduced-motion:reduce){body.scary *{animation:none!important}}
-#trap{background:rgba(250,250,250,.94)!important}
-#trap .card{background:#fff;border:1px solid #8b0000;color:#8b0000}
-#trap .card h2{margin:0;line-height:1.6;font-size:clamp(11px,4vw,15px);white-space:nowrap}
-#trap .card button{background:#8b0000;color:#fff}
 #ptr{height:0;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;color:var(--sub);font-size:13px}
 @media (prefers-reduced-motion:reduce){.post.fresh{animation:none}}
 </style>
@@ -155,10 +130,6 @@ body.scary .try,body.scary .nudge{background:#f6f6f6;color:#8a8a8a}
 <input id="nm" maxlength="20" placeholder="例：はなこ" autocomplete="off">
 <small class="note">※これはジョークサイトです。</small>
 <button id="go">はじめる</button></div></div>
-<div id="ghost" aria-hidden="true"></div>
-<div class="ask" id="trap" role="alertdialog" aria-labelledby="trapmsg" hidden><div class="card">
-<h2 id="trapmsg">もう変えなくていいでしょう？</h2>
-<button id="trapok">分かりました</button></div></div>
 <div class="ask" id="upd" role="dialog" aria-labelledby="updt" hidden><div class="card">
 <h2 id="updt">【UP DATE!】</h2>
 <p>場所も褒められるようになりました！</p>
@@ -179,8 +150,7 @@ const P=(who,handle,icon,color,time,text,rp,lk,rl)=>({who,handle,icon,color,time
 const KEYS=[
 ["furusawa",["古沢","朋恵","ふるさわ","ともえ","フルサワ","トモエ","Furusawa","Tomoe"]],
 ["satou",["佐藤","知恩","さとう","ちおん","サトウ","チオン","Satou","Chion"]],
-["komusubi",["小結","湊仁","こむすび","みなと","コムスビ","ミナト","Komusubi","Minato"]],
-["yuuka",["優香","ゆうか","ユウカ","Yuuka"]]];
+["komusubi",["小結","湊仁","こむすび","みなと","コムスビ","ミナト","Komusubi","Minato"]]];
 const PROFILES={
 furusawa:{suffix:"ちゃん",handle:"@star_on_stage",bio:"ミュージカルもお芝居も、いつも一生懸命🎭 頑張り屋さん🌹",icon:"🌹",iconBg:"#ffe3e8",accent:"#f28c28",cover:"linear-gradient(120deg,#ffb347,#ff7a3d 50%,#c2410c 78%,#7b2d4f)",end:"まだまだ褒めたりないけど、このへんで。ハートは何回でも押してね🧡",posts:[
   { who:"わたし", handle:"@me", icon:"😊", color:"#ffe6cc", time:"たった今", text:"{N}、誕生日おめでとう🎂🎉\nこれからも歌って、演じて、元気いっぱいに輝いてね。ずっと応援してる！", rp:99, lk:999, rl:27 },
@@ -214,10 +184,6 @@ P("人狼村の住人","@jinro_mura","🐺","#e8e0ff","1日","人狼ゲームの
 P("努力を見てる人","@mite_ru","🌱","#e3f5d2","2日","{N}が努力してるの、みんな知ってるよ。\n見えないところで積み重ねて、ちゃんと結果を出す人。心から尊敬してる。",58,479,11),
 P("ネイル研究会","@nail_lab","💅","#ffe3f3","2日","{N}のネイル、細かいところまで丁寧で、センスがすごい。\n男の人でここまで上手い人、なかなかいない。",72,611,16)
 ]},
-yuuka:{suffix:"ちゃん",handle:"@",bio:"",icon:"",iconBg:"#000",accent:"#8b0000",cover:"linear-gradient(180deg,#f4f4f4,#d6d6d6)",nudge:"…まだ、あるよ。",end:"お幸せに。",posts:[
-P("","@","","#000","2026.10.2","全部知ってるよ。",0,0,0),
-P("","@","","#000","2026.10.2","結婚おめでとう！",0,0,0)
-]},
 generic:{suffix:"さん",handle:"@you_are_great",bio:"いつもお疲れ様。ちゃんと見てるよ🌿",icon:"🌿",iconBg:"#dcf7e8",accent:"#1d9bf0",cover:"linear-gradient(120deg,#7ee0c3,#4aa8ff 60%,#6b6bff)",end:"全部読んでくれてありがとう！ハートは何回でも押してね💙",posts:[
 P("わたし","@me","😊","#ffe6cc","たった今","{N}、いつもありがとう。\nこれからもよろしくね！",36,298,6),
 P("友だち","@tomodachi","🤝","#dff3ff","3時間","君といると楽しい。\nほんとにそれだけ。気づいたらずっと笑ってるんだよね。",42,351,9),
@@ -249,7 +215,7 @@ P("魔法使い","@wizard_comeback","👓","#dbeafe","10分","僕を見つけて
 PROFILES.gone={thread:1,fixed:"このアカウントは存在しません",suffix:"",handle:"@",bio:"",icon:"",iconBg:"#fff",accent:"#aaa",cover:"linear-gradient(180deg,#fff,#f3f3f3)",end:"",posts:[
 P("このアカウントは存在しません","@","","#fff","たった今","このアカウントは存在しません。",0,0,0)
 ]};
-const clearAll=(full)=>{window.noWarn=true;try{["tlname","tlshown","tl2","tl"].concat(full?["tlupd","tldevil","tlwiz","tlspell","tlgone","tlclear"]:[]).forEach(k=>localStorage.removeItem(k))}catch(e){}};
+const clearAll=(full)=>{try{["tlname","tlshown","tl2","tl"].concat(full?["tlupd","tldevil","tlwiz","tlspell","tlgone","tlclear"]:[]).forEach(k=>localStorage.removeItem(k))}catch(e){}};
 if(/[?&]reset\b/.test(location.search))clearAll(true);
 const $=s=>document.querySelector(s);
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -257,7 +223,7 @@ const icons={
  rl:'<path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.7-5.2A8.4 8.4 0 1 1 21 11.5z"/>',
  rp:'<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>',
  lk:'<path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 22l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>'};
-const match=n=>{const t=n.normalize("NFKC").toLowerCase().replace(/\s/g,"");if(t.includes("佐藤優香"))return "yuuka";if(t.includes("tbs赤坂actシアター"))return "act";if(goneOK&&t.includes("最前列の悪魔"))return "gone";if(devilOK&&t.includes("最前列の悪魔"))return "devil";if(wizOK&&t.includes("魔法使い"))return "wizard";for(const [k,ws] of KEYS)if(ws.some(w=>t.includes(w.toLowerCase())))return k;return "generic"};
+const match=n=>{const t=n.normalize("NFKC").toLowerCase().replace(/\s/g,"");if(t.includes("tbs赤坂actシアター"))return "act";if(goneOK&&t.includes("最前列の悪魔"))return "gone";if(devilOK&&t.includes("最前列の悪魔"))return "devil";if(wizOK&&t.includes("魔法使い"))return "wizard";for(const [k,ws] of KEYS)if(ws.some(w=>t.includes(w.toLowerCase())))return k;return "generic"};
 let saved={},myName="",asked=false,PK="generic",PR=PROFILES.generic,POSTS=PR.posts;
 try{saved=JSON.parse(localStorage.getItem("tl2")||"{}")}catch(e){}
 try{const v=localStorage.getItem("tlname");if(v!==null){asked=true;myName=v}}catch(e){}
@@ -355,14 +321,13 @@ function render(){
  const N=PR.fixed||(myName?honor(myName,PR.suffix):"あなた");
  const L=POSTS.length,sh=Math.min(shown,L),start=L-sh,done=sh>=L;
  document.title="birthday present";
- document.body.classList.toggle("scary",PK==="yuuka");
  document.body.classList.toggle("devil",PK==="devil");
  document.body.classList.toggle("gone",PK==="gone");
  if(PK==="gone"&&!goneAnim&&!(saved.rep_gone&&saved.rep_gone.length))saved.rep_gone=GONE_MSGS.map(t=>({f:"wiz",t}));
  document.documentElement.style.setProperty("--accent",PR.accent);
  $(".cover").style.background=PR.cover;
  $("#pav").style.background=PR.iconBg;$("#pav").textContent=PR.icon;
- $("#hname").textContent=N;$("#hcount").textContent=PK==="yuuka"?"…":sh+"件のポスト";
+ $("#hname").textContent=N;$("#hcount").textContent=sh+"件のポスト";
  $("#pname").textContent=N;$("#phandle").textContent=PR.handle;$("#pbio").textContent=PR.bio;
  $("#nudge").hidden=done;
  $("#nudgetxt").textContent=PR.nudge||defNudge;
@@ -388,7 +353,6 @@ $("#tl").addEventListener("click",e=>{
 function openAsk(){document.body.classList.add("asking");$("#ask").hidden=false;$("#nm").value=myName;setTimeout(()=>$("#nm").focus(),50)}
 function submitName(){
  const raw=$("#nm").value.trim().slice(0,20);
- if(raw.includes("引地優香")){showTrap("“今”の名前を入力してね！");$("#nm").value="";return}
  myName=raw;
  try{localStorage.setItem("tlname",myName)}catch(e){}
  $("#ask").hidden=true;document.body.classList.remove("asking");replyOpen=false;render();if(PK==="gone"&&!goneAnim)showClear();
@@ -404,23 +368,7 @@ let y0=null,dy=0;const ptr=$("#ptr");
 addEventListener("touchstart",e=>{if(scrollY<=0&&$("#ask").hidden&&shown<POSTS.length){y0=e.touches[0].clientY;dy=0}else y0=null},{passive:true});
 addEventListener("touchmove",e=>{if(y0===null)return;dy=e.touches[0].clientY-y0;if(dy>0&&scrollY<=0){e.preventDefault();const h=Math.min(dy*.5,64);ptr.style.height=h+"px";ptr.textContent=h>=48?"離すと更新 🔄":"↓ 引っ張って更新"}else{ptr.style.height="0px"}},{passive:false});
 addEventListener("touchend",()=>{if(y0===null)return;const go=dy*.5>=48;y0=null;ptr.style.transition="height .25s";ptr.style.height="0px";ptr.textContent="";setTimeout(()=>{ptr.style.transition="";if(go)more()},250)});
-$("#try").addEventListener("click",()=>{if(PK==="yuuka"){showTrap("もう変えなくていいでしょう？");return}const grp=["furusawa","satou","komusubi"].includes(PK);clearAll();try{if(grp&&localStorage.getItem("tlupd")!=="done")localStorage.setItem("tlupd","pending")}catch(e){}location.reload()});
-$("#trapok").addEventListener("click",()=>{$("#trap").hidden=true;if(!$("#ask").hidden)$("#nm").focus()});
-function showTrap(m){$("#trapmsg").textContent=m;$("#trap").hidden=false;$("#trapok").focus()}
-(function(){
- const g=$("#ghost"),W=["おめでとう","おめでとう","ずっと","ここ","おしあわせに"];
- function boo(){
-  if(document.body.classList.contains("scary")&&!matchMedia("(prefers-reduced-motion:reduce)").matches&&!document.hidden){
-   g.textContent=W[Math.floor(Math.random()*W.length)];
-   g.style.left=(5+Math.random()*55)+"%";g.style.top=(8+Math.random()*80)+"%";g.style.opacity=".5";
-   setTimeout(()=>{g.style.opacity="0"},140+Math.random()*160);
-  }
-  setTimeout(boo,6000+Math.random()*9000);
- }
- setTimeout(boo,8000);
- document.addEventListener("visibilitychange",()=>{if(!document.body.classList.contains("scary"))return;document.title=document.hidden?"…どこ行くの？":"birthday present";if(!document.hidden)showTrap("逃げないでよ！笑")});
- addEventListener("beforeunload",e=>{if(document.body.classList.contains("scary")&&!window.noWarn){e.preventDefault();e.returnValue=""}});
-})();
+$("#try").addEventListener("click",()=>{const grp=["furusawa","satou","komusubi"].includes(PK);clearAll();try{if(grp&&localStorage.getItem("tlupd")!=="done")localStorage.setItem("tlupd","pending")}catch(e){}location.reload()});
 let taps=0,tapT;
 $("header").addEventListener("click",()=>{taps++;clearTimeout(tapT);tapT=setTimeout(()=>{taps=0},2500);if(taps>=5){clearAll(true);location.reload()}});
 $("#updok").addEventListener("click",()=>{$("#upd").hidden=true;$("#nm").focus()});
